@@ -267,7 +267,7 @@ def fig_vpl_maximo(grade, curvas):
 # TABELA DE RESULTADOS (CSV + impressao)
 # =============================================================================
 
-def tabela_resultados(grade, curvas, tempos):
+def tabela_resultados(grade, curvas):
     linhas = []
     print(f"{'Calculos':>9} | {'Media (R$)':>16} | {'Maximo (R$)':>16} | "
           f"{'Minimo (R$)':>16} | {'Efic.':>6}")
@@ -308,7 +308,7 @@ def _salvar(fig, nome):
 if __name__ == "__main__":
     os.makedirs(PASTA_SAIDA, exist_ok=True)
 
-    grade, curvas, tempos = rodar_experimento()
+    grade, curvas, _tempos = rodar_experimento()
 
     print("Gerando figuras...")
     fig_convergencia(grade, curvas)
@@ -317,5 +317,5 @@ if __name__ == "__main__":
     fig_vpl_maximo(grade, curvas)
 
     print()
-    tabela_resultados(grade, curvas, tempos)
+    tabela_resultados(grade, curvas)
     print("\nConcluido. Figuras e tabela na pasta 'figuras/'.")
