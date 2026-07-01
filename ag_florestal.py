@@ -55,22 +55,23 @@ def carregar_dados(arquivo):
     df = pd.read_excel(arquivo)
     df.columns = ["talhao", "idade", "prescricao"] + [f"ano{k}" for k in range(1, 17)] + ["VPL"]
 
-    talhoes     = sorted(df["talhao"].unique())
-    prescricoes = sorted(df["prescricao"].unique())
-    n_t, n_p    = len(talhoes), len(prescricoes)
+    # Ordena por (talhao, prescricao) para que o reshape agrupe corretamente
+    # cada talhao em um bloco contiguo com suas prescricoes em ordem crescente.
+    df = df.sort_values(["talhao", "prescricao"]).reset_index(drop=True)
 
-    idx_t = {t: i for i, t in enumerate(talhoes)}
-    idx_p = {p: j for j, p in enumerate(prescricoes)}
-
-    VPL = np.zeros((n_t, n_p))
-    VOL = np.zeros((n_t, n_p, 16))
+    n_t = df["talhao"].nunique()
+    n_p = df["prescricao"].nunique()
     anos = [f"ano{k}" for k in range(1, 17)]
 
-    for _, linha in df.iterrows():
-        i = idx_t[linha["talhao"]]
-        j = idx_p[linha["prescricao"]]
-        VPL[i, j] = linha["VPL"]
-        VOL[i, j, :] = linha[anos].values
+    # A base e regular (todo talhao tem todas as prescricoes), entao um simples
+    # reshape substitui o antigo laco linha-a-linha (muito mais rapido).
+    if len(df) != n_t * n_p:
+        raise ValueError(
+            f"Base irregular: {len(df)} linhas != {n_t} talhoes x {n_p} prescricoes."
+        )
+
+    VPL = df["VPL"].to_numpy(dtype=float).reshape(n_t, n_p)
+    VOL = df[anos].to_numpy(dtype=float).reshape(n_t, n_p, 16)
 
     return VPL, VOL
 
@@ -153,7 +154,14 @@ def mutacao(rng, individuo):
 # LACO PRINCIPAL DO AG
 # =============================================================================
 
-def algoritmo_genetico(VPL, VOL, verbose=True):
+def algoritmo_genetico(VPL, VOL, verbose=True, registrar_historico=False):
+    """Executa uma rodada do AG.
+
+    Retorna (melhor_individuo, melhor_fitness, n_calculos, historico).
+    Quando registrar_historico=True, 'historico' e uma lista de pares
+    (n_calculos, melhor_fitness_ate_o_momento) apos cada geracao — usada para
+    tracar as curvas de convergencia. Caso contrario, 'historico' e None.
+    """
     rng = np.random.default_rng(SEMENTE)
     fobj = FuncaoObjetivo(VPL, VOL)
     n_talhoes, n_prescricoes = VPL.shape
@@ -165,6 +173,8 @@ def algoritmo_genetico(VPL, VOL, verbose=True):
     melhor_idx = int(np.argmax(fitness))
     melhor_individuo = populacao[melhor_idx].copy()
     melhor_fitness = fitness[melhor_idx]
+
+    historico = [(fobj.calculos, melhor_fitness)] if registrar_historico else None
 
     geracao = 0
     while fobj.calculos < MAX_CALCULOS:
@@ -210,11 +220,14 @@ def algoritmo_genetico(VPL, VOL, verbose=True):
             melhor_fitness = fitness[idx]
             melhor_individuo = populacao[idx].copy()
 
+        if registrar_historico:
+            historico.append((fobj.calculos, melhor_fitness))
+
         if verbose and geracao % 20 == 0:
             print(f"Geracao {geracao:4d} | calculos {fobj.calculos:6d} | "
                   f"melhor VPL = R$ {melhor_fitness:,.2f}")
 
-    return melhor_individuo, melhor_fitness, fobj.calculos
+    return melhor_individuo, melhor_fitness, fobj.calculos, historico
 
 
 # =============================================================================
@@ -227,7 +240,7 @@ if __name__ == "__main__":
     print(f"Base carregada: {VPL.shape[0]} talhoes x {VPL.shape[1]} prescricoes\n")
 
     print(f"Executando AG (max {MAX_CALCULOS} calculos da funcao objetivo)...\n")
-    melhor, valor, n_calc = algoritmo_genetico(VPL, VOL)
+    melhor, valor, n_calc, _ = algoritmo_genetico(VPL, VOL)
 
     # VPL de referencia do artigo para calculo de eficiencia (JUNIOR et al., 2021)
     VPL_REFERENCIA = 32170883

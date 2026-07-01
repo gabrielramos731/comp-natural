@@ -30,7 +30,7 @@ if __name__ == "__main__":
         for execucao in range(N_EXECUCOES):
             # semente diferente por execucao para evitar vies (artigo: 15 execucoes)
             ag.SEMENTE = execucao
-            _, valor, _ = ag.algoritmo_genetico(VPL, VOL, verbose=False)
+            _, valor, _, _ = ag.algoritmo_genetico(VPL, VOL, verbose=False)
             resultados.append(valor)
         tempo_medio = (time.time() - t0) / N_EXECUCOES
 

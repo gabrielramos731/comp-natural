@@ -8,14 +8,25 @@ de madeira fora dos limites `[140000, 160000] m³` (Eq. 6).
 ## Arquivos
 - `ag_florestal.py` — implementação do AG (uma execução).
 - `experimento_ag.py` — roda o AG 15× em cada ponto de parada e gera a tabela de resultados (estilo Tabela 2).
+- `graficos.py` — roda o experimento registrando o histórico e gera as **figuras da apresentação** (pasta `figuras/`).
 - `Base120.xlsx` — base de dados (120 talhões × 81 prescrições × 16 anos).
 
 ## Como executar
 ```bash
-pip install pandas numpy openpyxl
+pip install pandas numpy openpyxl matplotlib
 python ag_florestal.py        # uma execução, mostra a evolução e o melhor VPL
 python experimento_ag.py      # reproduz a tabela (15 execuções × 4 pontos)
+python graficos.py            # gera as figuras dos slides em figuras/
 ```
+
+## Figuras geradas (`graficos.py`)
+| Arquivo | Conteúdo |
+|---|---|
+| `fig1_convergencia.png` | Curva de convergência do VPL médio (± desvio) vs nº de cálculos, com o VPL de referência e o limite superior. |
+| `fig2_comparacao_efic.png` | **Gráfico-chave:** barras de eficiência do AG do artigo vs. AG revisado nos 4 pontos de parada. |
+| `fig3_boxplot.png` | Distribuição das 15 execuções por ponto de parada, com a média do AG do artigo marcada. |
+| `fig4_vpl_maximo.png` | Melhor VPL encontrado vs. esforço computacional (artigo vs. revisado). |
+| `resultados_ag.csv` | Tabela de resultados (estilo Tabela 2). |
 
 ## Parâmetros editáveis (topo do `ag_florestal.py`)
 
@@ -39,8 +50,17 @@ python experimento_ag.py      # reproduz a tabela (15 execuções × 4 pontos)
 - **Mutação** (passo 5): `mutacao` — 1%, troca a prescrição de 2 talhões.
 - **Substituição** (passo 6): laço principal — 10 elite + restante por torneio.
 
-## Observação sobre os resultados
-Esta implementação limpa converge bem (eficiência ~0.95 com 50000 cálculos),
-acima dos números relatados no artigo para o AG (~0.80). O próprio artigo
-concluiu que "uma revisão aprofundada dos métodos implementados se faz
-necessária" — esta versão pode ser apresentada como essa revisão.
+## Observação sobre os resultados (proposta de melhoria)
+O próprio artigo concluiu que, para o AG, "uma revisão aprofundada dos métodos
+implementados se faz necessária" — esta versão é justamente essa revisão. A
+implementação revisada supera o AG do artigo em **todos** os pontos de parada,
+com o maior ganho justamente quando há pouco orçamento computacional:
+
+| Cálculos | Eficiência (artigo) | Eficiência (revisado) |
+|---:|---:|---:|
+| 5 000  | 0.204 | **0.750** |
+| 10 000 | 0.417 | **0.883** |
+| 25 000 | 0.674 | **0.932** |
+| 50 000 | 0.801 | **0.939** |
+
+(15 execuções, sementes 0–14; referência B&B = R\$ 32 170 883.)
