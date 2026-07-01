@@ -1,0 +1,22 @@
+Descrição do Trabalho
+
+Conforme alinhado em nossa última aula, o trabalho final consistirá no desenvolvimento e na apresentação de um projeto prático focado na aplicação ou otimização de algoritmos.
+
+Para a entrega, não será necessário o formato de artigo. O foco principal será a síntese do projeto estruturada diretamente em formato de *slides*.
+
+ Escopo do ProjetoO trabalho deve se enquadrar em uma das duas vertentes abaixo:
+
+ 1. Proposta de Melhoria: Desenvolver e apresentar uma proposta de otimização ou melhoria em relação a algum algoritmo já estudado em sala de aula.
+
+ 2. Aplicação Prática: Aplicar um algoritmo visto em sala de aula para a resolução de um problema inédito (que não tenha sido abordado no curso).
+
+ Estrutura dos Slides (Critérios de Avaliação)
+
+A apresentação em formato de slides deve cobrir, obrigatoriamente, os seguintes pontos:
+ O Problema: Contextualização e definição clara do problema que motivou o projeto.
+
+ A Solução Adotada: Detalhamento técnico da abordagem utilizada (o algoritmo escolhido e como ele foi aplicado ou melhorado).
+
+ Os Resultados: Apresentação dos dados obtidos, testes realizados e conclusões sobre a eficácia da solução.
+
+Formato de Entrega e Organização Componentes: O trabalho pode ser realizado individualmente ou em DUPLA.
