@@ -6,16 +6,46 @@ para cada um dos 120 talhões maximizando o VPL e penalizando a produção anual
 de madeira fora dos limites `[140000, 160000] m³` (Eq. 6).
 
 ## Arquivos
-- `ag_florestal.py` — implementação do AG (uma execução).
+- `ag_florestal.py` — implementação do AG (uma execução), com **duas estratégias de inicialização da população**.
 - `experimento_ag.py` — roda o AG 15× em cada ponto de parada e gera a tabela de resultados (estilo Tabela 2).
+- `experimento_comparacao.py` — **experimento fatorial 2×2** (inicialização {aleatória, GRASP} × busca local {sem, com}), salva resultados em `resultados/` e registra em `EXPERIMENTOS.md`.
+- `graficos.py` — gera os **gráficos e tabelas** de comparação a partir dos resultados (`resultados/figuras/`).
 - `Base120.xlsx` — base de dados (120 talhões × 81 prescrições × 16 anos).
 
 ## Como executar
 ```bash
-pip install pandas numpy openpyxl
-python ag_florestal.py        # uma execução, mostra a evolução e o melhor VPL
-python experimento_ag.py      # reproduz a tabela (15 execuções × 4 pontos)
+pip install pandas numpy openpyxl matplotlib
+python ag_florestal.py           # uma execução, mostra a evolução e o melhor VPL
+python experimento_ag.py         # reproduz a tabela (15 execuções × 4 pontos)
+python experimento_comparacao.py # experimento fatorial 2×2 (15 execuções cada)
+python graficos.py               # gera figuras e tabelas em resultados/figuras/
 ```
+
+## Comparação de estratégias (foco do estudo)
+Três formas de gerar/refinar a população do AG, mantendo **todo o restante idêntico**:
+
+| Estratégia | O que muda | Parâmetro |
+|---|---|---|
+| **Aleatória** | população inicial completamente aleatória (construtiva α=1) | `ESTRATEGIA_INICIAL = "aleatoria"` |
+| **GRASP (gulosa-aleatória)** | população inicial via RCL por talhão, Eq. 7 (`µ = VPLmax − α·(VPLmax − VPLmin)`); sorteia entre prescrições de VPL ≥ µ | `ESTRATEGIA_INICIAL = "grasp"`, `ALPHA_GRASP = 0.5` |
+| **AG Memético (BL)** | init aleatória **+ Busca Local sistemática (primeira-melhora)** aplicada aos melhores indivíduos a cada geração (AG diversifica, BL intensifica) | `MEMETICO = True`, `ORCAMENTO_BL = 120`, `N_ELITE_BL = 1` |
+
+As 4 configurações (2×2) são: **Aleatória**, **Aleatória + BL**, **GRASP (α=0.5)** e **GRASP (α=0.5) + BL**.
+`experimento_comparacao.py` executa cada uma 15× até 50000 cálculos, lê os pontos de parada
+(5000/10000/25000/50000) do histórico e grava:
+- `resultados/resumo_comparacao.csv` — tabela agregada (média/máx/mín/desvio/eficiência).
+- `resultados/runs_finais.csv` — VPL de cada execução (boxplots/dispersão).
+- `resultados/convergencia.csv` — curva média de VPL × nº de cálculos (evolução).
+- `resultados/qualidade_inicial.csv` — qualidade da população inicial por estratégia.
+- `resultados/experimentos.json` — dump completo; `EXPERIMENTOS.md` — log legível.
+
+## Gráficos e tabelas (`graficos.py` → `resultados/figuras/`)
+- `convergencia.png` — evolução do VPL/eficiência × nº de cálculos (visão completa + zoom).
+- `barras_50000.png` — eficiência média das 4 configurações em 50000 cálculos.
+- `efeito_busca_local.png` — efeito fatorial da BL (sem vs com) por inicialização.
+- `boxplot_50000.png` — distribuição do VPL final (15 execuções) por configuração.
+- `tabela_50000.png` — tabela-resumo (imagem) do ponto de 50000 cálculos.
+- `resultados/tabela_comparacao.md` — tabela markdown com todos os pontos de parada.
 
 ## Parâmetros editáveis (topo do `ag_florestal.py`)
 

@@ -1,0 +1,5 @@
+estrategia,fitness_inicial_medio,fitness_inicial_max_medio,fitness_inicial_max_global
+Aleatoria,-123850676.375,-35821050.733333334,-5051526.0
+Aleatoria + BL,-123850676.375,-35821050.733333334,-5051526.0
+GRASP (a=0.5),-542036564.7216667,-471100756.6,-448473737.0
+GRASP (a=0.5) + BL,-542036564.7216667,-471100756.6,-448473737.0
